@@ -22,3 +22,15 @@ def get_recent_traffic(limit: int = 10):
     cursor.execute("SELECT * FROM traffic ORDER BY datetime DESC LIMIT %s", (limit,))
     results = cursor.fetchall()
     return results
+
+
+@app.get("/traffic/stats/daily")
+def get_daily_stats():
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("""
+        SELECT DATE(datetime) as date, SUM(vehicles) as total_vehicles
+        FROM traffic
+        GROUP BY DATE(datetime)
+        ORDER BY DATE(datetime) ASC;
+    """)
+    return cursor.fetchall()
